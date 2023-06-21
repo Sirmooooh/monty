@@ -1,42 +1,120 @@
-#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "monty.h"
 
 /**
- * is_digit - checks if a string is a digit
- * @string: string to check
+ * queue_node - adds a node to a stack_t stack in queue node
+ * @stack: stack head
+ * @n: number of the node
  *
- * Return: 1 if success, 0 if not
+ * Return: newly created node, if memory allocation fails, the function will
+ * return NULL.
  */
-int is_digit(char *string)
+stack_t *queue_node(stack_t **stack, const int n)
 {
-	if (!string || *string == '\0')
-		return (0);
-	if (*string == '-')
-		string++;
-	while (*string)
+	stack_t *new = malloc(sizeof(stack_t));
+	stack_t *curr = *stack;
+
+	if (new == NULL)
 	{
-		if (isdigit(*string) == 0)
-			return (0);
-		string++;
+		free(new);
+		return (NULL);
 	}
-	return (1);
+	new->n = n;
+
+	if (*stack == NULL)
+	{
+		new->next = NULL;
+		new->prev = NULL;
+		*stack = new;
+		return (new);
+	}
+
+	while (curr)
+	{
+		if (curr->next == NULL)
+		{
+			new->next = NULL;
+			new->prev = curr;
+			curr->next = new;
+			break;
+		}
+		curr = curr->next;
+	}
+
+	return (new);
 }
+
 /**
- * isnumber - checks if a string is a number
- * @str: provided string
+ * add_node - adds a node to the start of a stack_t stack
+ * @stack: stack head
+ * @n: number for the new node
  *
- * Return: 1 if the string is a number, else, 0.
+ * Return: newly created node, if creation fails, the
+ * function will return NULL.
  */
-int isnumber(char *str)
+stack_t *add_node(stack_t **stack, const int n)
 {
-	int z;
+	stack_t *new = malloc(sizeof(stack_t));
 
-	if (str == NULL)
-		return (0);
+	if (new == NULL)
+	{
+		fprintf(stderr, "Error: malloc failed\n");
+		free(new);
+		return (NULL);
+	}
+	new->n = n;
 
-	for (z = 0; str[z]; z++)
-		if (z < '0' || z > '9')
-			return (0);
+	new->next = *stack;
+	new->prev = NULL;
+	if (*stack)
+		(*stack)->prev = new;
 
-	return (1);
+	*stack = new;
+
+	return (new);
+}
+
+/**
+ * print_stack - prints the contents of a stack_t stack
+ * @stack: stack head
+ *
+ * Return: number of elements of the list
+ */
+size_t print_stack(const stack_t *stack)
+{
+	size_t a = 0;
+
+	while (stack)
+	{
+		printf("%d\n", stack->n);
+		stack = stack->next;
+		a++;
+	}
+
+	return (a);
+}
+
+/**
+ * free_stack - frees a dlistint_t linked list
+ * @stack: list head
+ *
+ * Return: void
+ */
+void free_stack(stack_t *stack)
+{
+	stack_t *curr = stack;
+	stack_t *next;
+
+	if (stack)
+	{
+		next = stack->next;
+		while (curr)
+		{
+			free(curr);
+			curr = next;
+			if (next)
+				next = next->next;
+		}
+	}
 }
